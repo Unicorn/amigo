@@ -1,4 +1,4 @@
-package types
+package amigo
 
 // Originate holds information used to originate outgoing calls.
 //		Channel - Channel name to call.
