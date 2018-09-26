@@ -7,11 +7,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ivahaev/amigo/uuid"
+	"github.com/UnicornAgency/amigo/uuid"
 )
 
 var (
-	version = "0.1.9"
+	version = "0.2.0"
 
 	// TODO: implement function to clear old data in handlers.
 	agiCommandsHandlers = make(map[string]agiCommand)

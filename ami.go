@@ -11,7 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ivahaev/amigo/uuid"
+	"github.com/UnicornAgency/amigo/uuid"
 )
 
 const (
