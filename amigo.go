@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	version = "0.2.0"
+	version = "0.2.1"
 
 	// TODO: implement function to clear old data in handlers.
 	agiCommandsHandlers = make(map[string]agiCommand)
@@ -25,7 +25,7 @@ type eventHandlerFunc func(string)
 // Amigo is a main package struct
 type Amigo struct {
 	settings        *Settings
-	ami             *amiAdapter
+	AMI             *amiAdapter
 	defaultChannel  chan map[string]string
 	defaultHandler  handlerFunc
 	handlers        map[string]handlerFunc
@@ -68,7 +68,7 @@ func New(settings *Settings) *Amigo {
 	var ami *amiAdapter
 	return &Amigo{
 		settings:      settings,
-		ami:           ami,
+		AMI:           ami,
 		handlers:      map[string]handlerFunc{},
 		eventHandlers: map[string][]eventHandlerFunc{},
 		mutex:         &sync.RWMutex{},
@@ -90,7 +90,7 @@ func (a *Amigo) Action(action map[string]string) (map[string]string, error) {
 
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
-	result := a.ami.exec(action)
+	result := a.AMI.exec(action)
 	if a.capitalizeProps {
 		e := map[string]string{}
 		for k, v := range result {
@@ -123,7 +123,7 @@ func (a *Amigo) AgiAction(channel, command string) (map[string]string, error) {
 	agiCommandsMutex.Unlock()
 
 	a.mutex.Lock()
-	result := a.ami.exec(action)
+	result := a.AMI.exec(action)
 	a.mutex.Unlock()
 	if result["Response"] != "Success" {
 		return result, errors.New("Fail with command")
@@ -161,7 +161,7 @@ func (a *Amigo) Connect() {
 			go a.emitEvent("error", fmt.Sprintf("AMI Connect error: %s", err.Error()))
 		} else {
 			a.mutex.Lock()
-			a.ami = am
+			a.AMI = am
 			a.mutex.Unlock()
 			break
 		}
@@ -175,7 +175,7 @@ func (a *Amigo) Connect() {
 
 	go func() {
 		for {
-			var e = <-a.ami.eventsChan
+			var e = <-a.AMI.eventsChan
 			a.handlerMutex.RLock()
 
 			if a.defaultChannel != nil {
@@ -234,7 +234,7 @@ func (a *Amigo) Connect() {
 func (a *Amigo) Connected() bool {
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
-	return a.ami != nil && a.ami.online()
+	return a.AMI != nil && a.AMI.online()
 }
 
 // On register handler for package events. Now amigo will emit two types of events:
