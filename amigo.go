@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	version = "0.2.1"
+	version = "0.2.2"
 
 	// TODO: implement function to clear old data in handlers.
 	agiCommandsHandlers = make(map[string]agiCommand)
@@ -81,9 +81,10 @@ func (a *Amigo) CapitalizeProps(c bool) {
 	a.capitalizeProps = c
 }
 
-// Export the EventsChannel
-func (a *Amigo) EventsChannel() chan map[string]string {
-	return a.ami.eventsChan
+// EventsChannel exports the internal EventsChannel
+func (a *Amigo) EventsChannel() string {
+	println("called")
+	return "test"
 }
 
 // Action used to execute Actions in Asterisk. Returns immediately response from asterisk. Full response will follow.
