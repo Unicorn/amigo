@@ -25,7 +25,7 @@ type eventHandlerFunc func(string)
 // Amigo is a main package struct
 type Amigo struct {
 	settings        *Settings
-	AMI             *amiAdapter
+	ami             *amiAdapter
 	defaultChannel  chan map[string]string
 	defaultHandler  handlerFunc
 	handlers        map[string]handlerFunc
@@ -68,7 +68,7 @@ func New(settings *Settings) *Amigo {
 	var ami *amiAdapter
 	return &Amigo{
 		settings:      settings,
-		AMI:           ami,
+		ami:           ami,
 		handlers:      map[string]handlerFunc{},
 		eventHandlers: map[string][]eventHandlerFunc{},
 		mutex:         &sync.RWMutex{},
@@ -81,6 +81,11 @@ func (a *Amigo) CapitalizeProps(c bool) {
 	a.capitalizeProps = c
 }
 
+// Export the EventsChannel
+func (a *Amigo) EventsChannel() chan map[string]string {
+	return a.ami.eventsChan
+}
+
 // Action used to execute Actions in Asterisk. Returns immediately response from asterisk. Full response will follow.
 // Usage amigo.Action(action map[string]string)
 func (a *Amigo) Action(action map[string]string) (map[string]string, error) {
@@ -90,7 +95,7 @@ func (a *Amigo) Action(action map[string]string) (map[string]string, error) {
 
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
-	result := a.AMI.exec(action)
+	result := a.ami.exec(action)
 	if a.capitalizeProps {
 		e := map[string]string{}
 		for k, v := range result {
@@ -123,7 +128,7 @@ func (a *Amigo) AgiAction(channel, command string) (map[string]string, error) {
 	agiCommandsMutex.Unlock()
 
 	a.mutex.Lock()
-	result := a.AMI.exec(action)
+	result := a.ami.exec(action)
 	a.mutex.Unlock()
 	if result["Response"] != "Success" {
 		return result, errors.New("Fail with command")
@@ -161,7 +166,7 @@ func (a *Amigo) Connect() {
 			go a.emitEvent("error", fmt.Sprintf("AMI Connect error: %s", err.Error()))
 		} else {
 			a.mutex.Lock()
-			a.AMI = am
+			a.ami = am
 			a.mutex.Unlock()
 			break
 		}
@@ -175,7 +180,7 @@ func (a *Amigo) Connect() {
 
 	go func() {
 		for {
-			var e = <-a.AMI.eventsChan
+			var e = <-a.ami.eventsChan
 			a.handlerMutex.RLock()
 
 			if a.defaultChannel != nil {
@@ -234,7 +239,7 @@ func (a *Amigo) Connect() {
 func (a *Amigo) Connected() bool {
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
-	return a.AMI != nil && a.AMI.online()
+	return a.ami != nil && a.ami.online()
 }
 
 // On register handler for package events. Now amigo will emit two types of events:
