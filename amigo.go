@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	version = "0.2.3"
+	version = "1.0.0"
 
 	// TODO: implement function to clear old data in handlers.
 	agiCommandsHandlers = make(map[string]agiCommand)
